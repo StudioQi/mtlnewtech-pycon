@@ -1,0 +1,16 @@
+# -*- mode: nginx; mode: flyspell-prog;  ispell-current-dictionary: american -*-
+## {{ ansible_managed }}
+server {
+    listen 80; # IPv4
+
+    server_name {{item.server_name}}{% if 'server_alternate_name' in item %} {{ item.server_alternate_name }}{% endif %};
+
+    ## Access and error logs.
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
+
+    ## Filesystem root of the site and index.
+    root {{item.root}};
+    index index.html;
+    autoindex off;
+} 

@@ -1,0 +1,37 @@
+---
+- hosts: all
+  sudo: true
+  vars_files:
+    - 'vars/common.yml'
+
+  pre_tasks:
+   - name: Need to update the apt
+     apt: update_cache=yes
+
+   - name: Set hostname
+     hostname: name='{{fqdn}}'
+
+   - name: Ensure the value of SQ_ENVIRONMENT is set in /etc/environment
+     lineinfile: dest=/etc/environment regexp=^SQ_ENVIRONMENT= line=SQ_ENVIRONMENT={{sq_environment}}
+
+   - name: Install dependencies packages
+     apt: pkg={{item}} state=present
+     with_items: common_packages
+
+   - name: Update OS
+     apt: upgrade=safe
+
+  roles:
+    - nginx
+    - nginx-static
+
+  post_tasks:
+    - name: Catch all config for nginx
+      template: src=files/nginx-redirect.j2 dest=/etc/nginx/sites-available/catch-all.conf
+
+    - name: Remove default for nginx
+      file: path=/etc/nginx/sites-enabled/default state=absent
+
+    - name: Enable catch all config
+      file: src=/etc/nginx/sites-available/catch-all.conf dest=/etc/nginx/sites-enabled/catch-all.conf state=link
+      notify: restart nginx

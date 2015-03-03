@@ -1,0 +1,15 @@
+---
+timezone: "America/Montreal"
+common_packages:
+  - curl
+  - vim
+  - dnsutils
+  - aptitude
+  - python-pycurl
+
+nginx_static_sites:
+  - name: mtlnewtech
+    server_name: 'mtlnewtech-pycon.{{ domain }}'
+    root: /var/www/mtlnewtech
+
+nginx_apt_repository: ppa:nginx/stable

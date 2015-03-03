@@ -1,0 +1,17 @@
+---
+# tasks file for nginx-static
+- name: Creates all the nginx configuration files.
+  template: src=static-site.j2 dest=/etc/nginx/sites-available/{{item.name}}
+  with_items: nginx_static_sites
+
+- name: Enable all the sites
+  file: src=/etc/nginx/sites-available/{{item.name}} dest=/etc/nginx/sites-enabled/{{item.name}} state=link
+  with_items: nginx_static_sites
+  when: item.enabled|default(True)
+  notify: reload nginx
+
+- name: Disable all the disabled sites
+  file: path=/etc/nginx/sites-enabled/{{item.name}} state=absent
+  with_items: nginx_static_sites
+  when: item.enabled|default(True) == False
+  notify: reload nginx
